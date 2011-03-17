@@ -3,6 +3,19 @@
 # Author: Brian Wiborg
 # Date: 20110316
 # License: Academic Free 3.0
+#
+# = INSTALL =
+# create three symlinks pointing to this script in /usr/local/bin
+# - encup
+# - encdown
+# - enconfig
+#
+# = USAGE =
+# Make sure /usr/local/bin is set within your $PATH global
+# - encup <n>  - Mount <n> directory or all if <n> is not set
+# - endown <n> - Unmount <n> directory or all if <n> is not set
+# - enconfig   - List all configured encfs numbered by <n>
+#
 
 declare -a dirs
 private_dir_file=.privatedirs

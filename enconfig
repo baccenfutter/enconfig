@@ -2,6 +2,7 @@
 # Script: unlockhome
 # Author: Brian Wiborg
 # Date: 20110316
+# License: Academic Free 3.0
 
 declare -a dirs
 private_dir_file=.privatedirs
@@ -58,9 +59,9 @@ mount_these () {
 		encfs_dir=$1; shift
 		mountpoint=$1; shift
 		if is_mounted ${mountpoint}; then
-			echo Skipping ${mountpoint}
+			echo Skipping $mountpoint
 		else
-			echo ${mountpoint}
+			echo $mountpoint
 			mount_encfs ${encfs_dir} ${mountpoint}
 		fi
 	done

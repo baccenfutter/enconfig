@@ -20,7 +20,7 @@ get_dirs_to_be_mounted () {
 }
 
 is_mounted () {
-	mountpoint=${1}
+	mountpoint=$1
 	if mount | grep ${mountpoint} >> /dev/null; then
 		return 0
 	else
@@ -29,13 +29,13 @@ is_mounted () {
 }
 
 mount_encfs () {
-	encfs_dir=${1}
-	mountpoint=${2}
+	encfs_dir=$1
+	mountpoint=$2
 	encfs ${encfs_dir} ${mountpoint}
 }
 
 unmount_encfs () {
-	mountpoint=${1}
+	mountpoint=$1
 	fusermount -u $mountpoint
 }
 
@@ -43,20 +43,20 @@ list_mounts () {
 	i=1
 	echo "Mounted | Path"
 	while [ ${1} ]; do
-		shift; mountpoint=${1}; shift
+		shift; mountpoint=$1; shift
 		if is_mounted ${mountpoint}; then
-			echo "[$((i++))] [x] ${mountpoint}"
+			echo "[$((i++))] [M]   ${mountpoint} - $(mount | grep ${mountpoint} | cut -d' ' -f6)"
 		else
-			echo "[$((i++))] [ ] ${mountpoint}"
+			echo "[$((i++))] [ ]   ${mountpoint}"
 		fi
 	done
 	echo
 }
 
 mount_these () {
-	while [ ${1} ]; do
-		encfs_dir=${1}; shift
-		mountpoint=${1}; shift
+	while [ $1 ]; do
+		encfs_dir=$1; shift
+		mountpoint=$1; shift
 		if is_mounted ${mountpoint}; then
 			echo Skipping ${mountpoint}
 		else
@@ -68,8 +68,8 @@ mount_these () {
 
 unmount_these () {
 	while [ ${1} ]; do
-		encfs_dir=${1}; shift
-		mountpoint=${1}; shift
+		encfs_dir=$1; shift
+		mountpoint=$1; shift
 		if is_mounted ${mountpoint}; then
 			echo Unmounting ${mountpoint}
 			unmount_encfs ${mountpoint}
@@ -79,27 +79,56 @@ unmount_these () {
 	done
 }
 
-# this reads ~/.privatedirs and fills the dirs array
-get_dirs_to_be_mounted
+mount_this () {
+	encfs_dir=$1
+	mountpoint=$2
+	if is_mounted ${mountpoint}; then
+		echo "Skipping $mountpoint"
+	else
+		echo $mountpoint
+		mount_encfs ${encfs_dir} ${mountpoint}
+	fi
+}
+
+unmount_this () {
+	encfs_dir=$1
+	mountpoint=$2
+	if is_mounted ${mountpoint}; then
+		echo "Unmounting $mountpoint"
+		unmount_encfs ${mountpoint}
+	else
+		echo "Skipping $mountpoint"
+	fi
+}
+
+set_dirs_array_by_line_nr () {
+	file=$HOME/.privatedirs
+	while read encfs mountpoint; do
+		dirs=( ${dirs[@]-} $(echo "$HOME/${encfs}" "$HOME/${mountpoint}" ) )
+	done < <(sed -n "${1}p" $file)
+}
 
 # command selection
 case `basename $0` in
-	enconfig) list_mounts ${dirs[@]};;
+	enconfig)
+		get_dirs_to_be_mounted
+		list_mounts ${dirs[@]}
+	;;
 	encup)
-		shift
-		if [[ $1 ]]; then
-			echo to come...
+		if [ $1 ]; then
+			set_dirs_array_by_line_nr $1
 		else
-			mount_these ${dirs[@]}
+			get_dirs_to_be_mounted
 		fi
+		mount_these ${dirs[@]}
 	;;
 	encdown)
-		shift
-		if [[ $1 ]]; then
-			echo to come...
+		if [ $1 ]; then
+			set_dirs_array_by_line_nr $1
 		else
-			unmount_these ${dirs[@]}
+			get_dirs_to_be_mounted
 		fi
+		unmount_these ${dirs[@]}
 	;;
 esac
 echo

@@ -19,10 +19,10 @@
 #
 
 declare -a dirs
-private_dir_file=.privatedirs
+private_dir_file=$HOME/.privatedirs
 
 get_dirs_to_be_mounted () {
-	file=$HOME/${private_dir_file}
+	file=${private_dir_file}
 	if [[ ! -f ${file} ]]; then
 		echo "Can not find ${file}"
 		echo "Nothing to do..."
@@ -65,7 +65,6 @@ list_mounts () {
 			echo "[$((i++))] [ ]   ${mountpoint}"
 		fi
 	done
-	echo
 }
 
 mount_these () {

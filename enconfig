@@ -8,14 +8,14 @@
 # - copy script to /usr/local/bin/enconfig and create two symlinks
 #   - encup -> /usr/local/bin/enconfig
 #   - encdown -> /usr/local/bin/enconfig
-# - create the ~/.privatedirs 
-#   Each line represents an encfs-mountpoint pair, e.g.:
+# - create the file ~/.privatedirs 
+#   Each line in this file represents an encfs-mountpoint configuration pair, e.g.:
 #     /home/myuser/.secret /home/myuser/secret
 #
 # = USAGE =
-# - encup [<n>]  - Mount <n> directory or all if <n> is not set
-# - endown [<n>] - Unmount <n> directory or all if <n> is not set
-# - enconfig     - List all configured encfs numbered by <n>
+# - encup [<n>]  - Mount all or line <n> in ~/.privatedirs
+# - endown [<n>] - Unmount all or line <n> in ~/.privatedirs
+# - enconfig     - List all encfs-mountpoint config pairs with line numbers
 #
 
 PRIVATE_DIR_FILE=$HOME/.privatedirs

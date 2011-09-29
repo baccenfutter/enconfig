@@ -18,24 +18,29 @@
 # - enconfig   - List all configured encfs numbered by <n>
 #
 
-declare -a dirs
-private_dir_file=$HOME/.privatedirs
+PRIVATE_DIR_FILE=$HOME/.privatedirs
+VERBOSE=true
 
-get_dirs_to_be_mounted () {
-	file="$private_dir_file"
-	if [[ ! -f $"file" ]]; then
-		echo "Can not find $file"
-		echo "Nothing to do..."
-		echo; exit 0
-	else
-		while read encfs mountpoint; do
-			dirs=( ${dirs[@]-} $(echo "$HOME/$encfs" "$HOME/$mountpoint" ) )
-		done < "$file"
-	fi
+mount_encfs () {
+	declare encfs_dir="$1"
+	declare mountpoint="$2"
+	[[ $VERBOSE ]] && echo "Mounting $mountpoint"
+	encfs "$encfs_dir" "$mountpoint"
+}
+
+unmount_encfs () {
+	declare mountpoint="$1"
+	[[ $VERBOSE ]] && echo "Unmounting $mountpoint"
+	fusermount -u "$mountpoint"
+}
+
+remove_trailing_slash () {
+	dir="$1"
+	echo "$dir" | sed 's/\/$//'
 }
 
 is_mounted () {
-	mountpoint="$1"
+	declare mountpoint="$(remove_trailing_slash $1)"
 	if mount | grep "$mountpoint" >> /dev/null; then
 		return 0
 	else
@@ -43,106 +48,42 @@ is_mounted () {
 	fi
 }
 
-mount_encfs () {
-	encfs_dir="$1"
-	mountpoint="$2"
-	encfs "$encfs_dir" "$mountpoint"
-}
-
-unmount_encfs () {
-	mountpoint="$1"
-	fusermount -u "$mountpoint"
-}
-
 list_mounts () {
-	i=1
-	echo "Mounted | Path"
-	while [ "$1" ]; do
-		shift; mountpoint="$1"; shift
-		if is_mounted "$mountpoint"; then
-			echo "[$((i++))] [M]   $mountpoint - $(mount | grep ${mountpoint} | cut -d' ' -f6)"
-		else
-			echo "[$((i++))] [ ]   $mountpoint"
-		fi
-	done
-}
-
-mount_these () {
-	while [ $1 ]; do
-		encfs_dir="$1"; shift
-		mountpoint="$1"; shift
-		if is_mounted ${mountpoint}; then
-			echo "Skipping $mountpoint"
-		else
-			echo $mountpoint
-			mount_encfs "$encfs_dir" "$mountpoint"
-		fi
-	done
-}
-
-unmount_these () {
-	while [ $1 ]; do
-		encfs_dir="$1"; shift
-		mountpoint="$1"; shift
-		if is_mounted "$mountpoint"; then
-			echo "Unmounting $mountpoint"
-			unmount_encfs "$mountpoint"
-		else
-			echo "Skipping $mountpoint"
-		fi
-	done
-}
-
-mount_this () {
-	encfs_dir="$1"
-	mountpoint="$2"
-	if is_mounted "$mountpoint"; then
-		echo "Skipping $mountpoint"
-	else
-		echo $mountpoint
-		mount_encfs "$encfs_dir" "$mountpoint"
-	fi
-}
-
-unmount_this () {
-	encfs_dir="$1"
-	mountpoint="$2"
-	if is_mounted "$mountpoint"; then
-		echo "Unmounting $mountpoint"
-		unmount_encfs "$mountpoint"
-	else
-		echo "Skipping $mountpoint"
-	fi
-}
-
-set_dirs_array_by_line_nr () {
-	file="$HOME/.privatedirs"
+	declare encfs=$1
+	declare mountpoint=$2
+	declare counter=1
 	while read encfs mountpoint; do
-		dirs=( ${dirs[@]-} $(echo "$HOME/$encfs $HOME/$mountpoint" ) )
-	done < <(sed -n "${1}p" "$file")
+		if is_mounted "$mountpoint"; then
+			echo "[$((counter++))] [M]   $mountpoint -" $(mount | grep "$(remove_trailing_slash ${mountpoint})" | cut -d' ' -f6)
+		else
+			echo "[$((counter++))] [ ]   $mountpoint"
+		fi
+	done < "$PRIVATE_DIR_FILE"
 }
 
 # command selection
 case $(basename "$0") in
 	enconfig)
-		get_dirs_to_be_mounted
-		list_mounts ${dirs[@]}
+		# Output the $PRIVATE_DIR_FILE to the user
+		list_mounts
 	;;
 	encup)
-		if [ $1 ]; then
-			set_dirs_array_by_line_nr $1
-		else
-			get_dirs_to_be_mounted
-		fi
-		mount_these ${dirs[@]}
+		# Mount either all lines or an explicit line specified by $1
+		declare linenumber=$1
+		while read encfs mountpoint; do
+			if ! is_mounted "$mountpoint"; then
+				mount_encfs "$encfs" "$mountpoint"
+			fi
+		done < <(if [[ $linenumber == "" ]]; then cat "$PRIVATE_DIR_FILE"; else sed -n ${linenumber}p "$PRIVATE_DIR_FILE"; fi)
 	;;
 	encdown)
-		if [ $1 ]; then
-			set_dirs_array_by_line_nr $1
-		else
-			get_dirs_to_be_mounted
-		fi
-		unmount_these ${dirs[@]}
+		# Unmount either all or line number specified by $1
+		declare linenumber=$1
+		while read encfs mountpoint; do
+			if is_mounted "$mountpoint"; then
+				unmount_encfs "$mountpoint"
+			fi
+		done < <(if [[ $linenumber == "" ]]; then cat "$PRIVATE_DIR_FILE"; else sed -n ${linenumber}p "$PRIVATE_DIR_FILE"; fi)
 	;;
 esac
 echo

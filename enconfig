@@ -1,9 +1,9 @@
 #!/bin/bash
-# Script		: enconfig
-# Description	: Wrapper for encfs - in honor to ifconfig, ifup, ifdown
-# Author		: Brian Wiborg
-# Date			: 20110316
-# License		: Academic Free 3.0
+# Script        : enconfig
+# Description   : Wrapper for encfs - in honor to ifconfig, ifup, ifdown
+# Author        : Brian Wiborg
+# Date          : 20110316
+# License       : Academic Free 3.0
 #
 # = INSTALL =
 # - copy script to /usr/local/bin/enconfig and create two symlinks
@@ -23,68 +23,68 @@ PRIVATE_DIR_FILE=$HOME/.privatedirs
 VERBOSE=true
 
 mount_encfs () {
-	declare encfs_dir="$1"
-	declare mountpoint="$2"
-	[[ $VERBOSE ]] && echo "Mounting $mountpoint"
-	encfs "$encfs_dir" "$mountpoint"
+    declare encfs_dir="$1"
+    declare mountpoint="$2"
+    [[ $VERBOSE ]] && echo "Mounting $mountpoint"
+    encfs "$encfs_dir" "$mountpoint"
 }
 
 unmount_encfs () {
-	declare mountpoint="$1"
-	[[ $VERBOSE ]] && echo "Unmounting $mountpoint"
-	fusermount -u "$mountpoint"
+    declare mountpoint="$1"
+    [[ $VERBOSE ]] && echo "Unmounting $mountpoint"
+    fusermount -u "$mountpoint"
 }
 
 remove_trailing_slash () {
-	dir="$1"
-	echo "$dir" | sed 's/\/$//'
+    dir="$1"
+    echo "$dir" | sed 's/\/$//'
 }
 
 is_mounted () {
-	declare mountpoint="$(remove_trailing_slash $1)"
-	if mount | grep "$mountpoint" >> /dev/null; then
-		return 0
-	else
-		return 1
-	fi
+    declare mountpoint="$(remove_trailing_slash $1)"
+    if mount | grep "$mountpoint" >> /dev/null; then
+        return 0
+    else
+        return 1
+    fi
 }
 
 list_mounts () {
-	declare encfs=$1
-	declare mountpoint=$2
-	declare counter=1
-	while read encfs mountpoint; do
-		if is_mounted "$mountpoint"; then
-			echo "[$((counter++))] [M]   $mountpoint -" $(mount | grep "$(remove_trailing_slash ${mountpoint})" | cut -d' ' -f6)
-		else
-			echo "[$((counter++))] [ ]   $mountpoint"
-		fi
-	done < "$PRIVATE_DIR_FILE"
+    declare encfs=$1
+    declare mountpoint=$2
+    declare counter=1
+    while read encfs mountpoint; do
+        if is_mounted "$mountpoint"; then
+            echo "[$((counter++))] [M]   $mountpoint -" $(mount | grep "$(remove_trailing_slash ${mountpoint})" | cut -d' ' -f6)
+        else
+            echo "[$((counter++))] [ ]   $mountpoint"
+        fi
+    done < "$PRIVATE_DIR_FILE"
 }
 
 # command selection
 case $(basename "$0") in
-	enconfig)
-		# Output the $PRIVATE_DIR_FILE to the user
-		list_mounts
-	;;
-	encup)
-		# Mount either all lines or an explicit line specified by $1
-		declare linenumber=$1
-		while read encfs mountpoint; do
-			if ! is_mounted "$mountpoint"; then
-				mount_encfs "$encfs" "$mountpoint"
-			fi
-		done < <(if [[ $linenumber == "" ]]; then cat "$PRIVATE_DIR_FILE"; else sed -n ${linenumber}p "$PRIVATE_DIR_FILE"; fi)
-	;;
-	encdown)
-		# Unmount either all or line number specified by $1
-		declare linenumber=$1
-		while read encfs mountpoint; do
-			if is_mounted "$mountpoint"; then
-				unmount_encfs "$mountpoint"
-			fi
-		done < <(if [[ $linenumber == "" ]]; then cat "$PRIVATE_DIR_FILE"; else sed -n ${linenumber}p "$PRIVATE_DIR_FILE"; fi)
-	;;
+    enconfig)
+        # Output the $PRIVATE_DIR_FILE to the user
+        list_mounts
+    ;;
+    encup)
+        # Mount either all lines or an explicit line specified by $1
+        declare linenumber=$1
+        while read encfs mountpoint; do
+            if ! is_mounted "$mountpoint"; then
+                mount_encfs "$encfs" "$mountpoint"
+            fi
+        done < <(if [[ $linenumber == "" ]]; then cat "$PRIVATE_DIR_FILE"; else sed -n ${linenumber}p "$PRIVATE_DIR_FILE"; fi)
+    ;;
+    encdown)
+        # Unmount either all or line number specified by $1
+        declare linenumber=$1
+        while read encfs mountpoint; do
+            if is_mounted "$mountpoint"; then
+                unmount_encfs "$mountpoint"
+            fi
+        done < <(if [[ $linenumber == "" ]]; then cat "$PRIVATE_DIR_FILE"; else sed -n ${linenumber}p "$PRIVATE_DIR_FILE"; fi)
+    ;;
 esac
 echo

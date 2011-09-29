@@ -5,7 +5,7 @@
 # License: Academic Free 3.0
 #
 # = INSTALL =
-# - copy script to /usr/local/bin/enconfig and create to symlinks
+# - copy script to /usr/local/bin/enconfig and create two symlinks
 #   - encup -> /usr/local/bin/enconfig
 #   - encdown -> /usr/local/bin/enconfig
 # - create the ~/.privatedirs 

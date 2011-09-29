@@ -1,8 +1,9 @@
 #!/bin/bash
-# Script: unlockhome
-# Author: Brian Wiborg
-# Date: 20110316
-# License: Academic Free 3.0
+# Script		: enconfig
+# Description	: Wrapper for encfs - in honor to ifconfig, ifup, ifdown
+# Author		: Brian Wiborg
+# Date			: 20110316
+# License		: Academic Free 3.0
 #
 # = INSTALL =
 # - copy script to /usr/local/bin/enconfig and create two symlinks
@@ -13,9 +14,9 @@
 #     /home/myuser/.secret /home/myuser/secret
 #
 # = USAGE =
+# - enconfig     - List all encfs-mountpoint config pairs with line numbers
 # - encup [<n>]  - Mount all or line <n> in ~/.privatedirs
 # - endown [<n>] - Unmount all or line <n> in ~/.privatedirs
-# - enconfig     - List all encfs-mountpoint config pairs with line numbers
 #
 
 PRIVATE_DIR_FILE=$HOME/.privatedirs

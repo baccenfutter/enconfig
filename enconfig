@@ -5,17 +5,17 @@
 # License: Academic Free 3.0
 #
 # = INSTALL =
-# - create a symlink to .privatedirs in ~/
-# - create three symlinks pointing to this script in /usr/local/bin
-#   - encup
-#   - encdown
-#   - enconfig
+# - copy script to /usr/local/bin/enconfig and create to symlinks
+#   - encup -> /usr/local/bin/enconfig
+#   - encdown -> /usr/local/bin/enconfig
+# - create the ~/.privatedirs 
+#   Each line represents an encfs-mountpoint pair, e.g.:
+#     /home/myuser/.secret /home/myuser/secret
 #
 # = USAGE =
-# Make sure /usr/local/bin is set within your $PATH global
-# - encup <n>  - Mount <n> directory or all if <n> is not set
-# - endown <n> - Unmount <n> directory or all if <n> is not set
-# - enconfig   - List all configured encfs numbered by <n>
+# - encup [<n>]  - Mount <n> directory or all if <n> is not set
+# - endown [<n>] - Unmount <n> directory or all if <n> is not set
+# - enconfig     - List all configured encfs numbered by <n>
 #
 
 PRIVATE_DIR_FILE=$HOME/.privatedirs

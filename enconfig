@@ -62,6 +62,10 @@ list_mounts () {
     done < "$PRIVATE_DIR_FILE"
 }
 
+if [[ ! -r "$PRIVATE_DIR_FILE" ]]; then
+    echo "Please create \$PRIVATE_DIR_FILE: $PRIVATE_DIR_FILE"
+    exit 1
+fi
 # command selection
 case $(basename "$0") in
     enconfig)

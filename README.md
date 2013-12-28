@@ -6,7 +6,7 @@ convenient little tool for un-/mounting encrypted directories within the
 filesystem leveraging Fuse.
 
 Unfortunately, it comes without any management interface making it easy
-to loose track of you encfs's. enconfig tries to fill that little gap.
+to loose track of you encfs's. enconfig tries to fill that gap.
 
 
 Installation

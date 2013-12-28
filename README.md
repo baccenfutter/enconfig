@@ -46,4 +46,4 @@ After setting up ~/.privatedirs you can use enconfig like this:
     # encdown       - unmount all directory pairs in ~/.privatedirs
 
 
-[1]: http://www.arg0.net/encfs
+[encfs]: http://www.arg0.net/encfs

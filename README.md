@@ -1,7 +1,7 @@
 enconfig
 ========
 
-enconfig is a  thin wrapper around encfs[1] written in bash. Encfs is a
+enconfig is a  thin wrapper around [encfs] written in bash. Encfs is a
 convenient little tool for managing encrypted directories within the
 filesystem leveraging Fuse.
 
